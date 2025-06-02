@@ -29,12 +29,13 @@ namespace Habilitations.controller
         }
 
         /// <summary>
-        /// Récupère et retourne les infos des développeurs
+        /// Récupère et retourne les infos des développeurs selon le profil (ou non)
         /// </summary>
+        /// <param name="idProfil">Id du profil à filtrer (null pour tous)</param>
         /// <returns>liste des développeurs</returns>
-        public List<Developpeur> GetLesDeveloppeurs()
+        public List<Developpeur> GetLesDeveloppeurs(int? idProfil =null)
         {
-            return developpeurAccess.GetLesDeveloppeurs();
+            return developpeurAccess.GetLesDeveloppeurs(idProfil);
         }
 
         /// <summary>
