@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Windows.Forms;
 using Habilitations.controller;
@@ -52,14 +52,29 @@ namespace Habilitations.view
             RemplirListeProfils();
             EnCourseModifDeveloppeur(false);
             EnCoursModifPwd(false);
+            // Initialisation du cbFiltreProfil
+            foreach (Profil profil in controller.GetLesProfils())
+            {
+                cbFiltreProfil.Items.Add(profil.Nom);
+            }
+            cbFiltreProfil.SelectedIndex = 0;
         }
 
         /// <summary>
-        /// Affiche les développeurs
+        /// Affiche les développeurs et filtre si un profil est sélectionné
         /// </summary>
         private void RemplirListeDeveloppeurs()
         {
-            List<Developpeur> lesDeveloppeurs = controller.GetLesDeveloppeurs();
+            List<Developpeur> lesDeveloppeurs;
+            Profil selectedProfil = cbFiltreProfil.SelectedItem as Profil;
+            if (selectedProfil == null || selectedProfil.Idprofil == 0)
+            {
+                lesDeveloppeurs = controller.GetLesDeveloppeurs();
+            }
+            else
+            {
+                lesDeveloppeurs = controller.GetLesDeveloppeurs(selectedProfil.Idprofil);
+            }
             bdgDeveloppeurs.DataSource = lesDeveloppeurs;
             dgvDeveloppeurs.DataSource = bdgDeveloppeurs;
             dgvDeveloppeurs.Columns["iddeveloppeur"].Visible = false;
@@ -75,6 +90,38 @@ namespace Habilitations.view
             List<Profil> lesProfils = controller.GetLesProfils();
             bdgProfils.DataSource = lesProfils;
             cboProfil.DataSource = bdgProfils;
+        }
+
+        /// <summary>
+        /// Gère le filtrage des développeurs selon le profil sélectionné dans le ComboBox
+        /// </summary>
+        private void ComboBoxFiltreProfil_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            string nomProfil = cbFiltreProfil.SelectedItem.ToString();
+            List<Developpeur> tousLesDevs = controller.GetLesDeveloppeurs();
+            if (nomProfil == "Tous les profils")
+            {
+                bdgDeveloppeurs.DataSource = tousLesDevs;
+            }
+            else
+            {
+                List<Developpeur> filtres = tousLesDevs.FindAll(dev => dev.Profil.Nom == nomProfil);
+                bdgDeveloppeurs.DataSource = filtres;
+            }
+            dgvDeveloppeurs.DataSource = bdgDeveloppeurs;
+        }
+
+        /// <summary>
+        /// Remplit le ComboBox de filtre des profils
+        /// </summary>
+        private void RemplirComboBoxFiltreProfil()
+        {
+            List<Profil> profils = controller.GetLesProfils();
+            profils.Insert(0, new Profil(0, " "));
+            cbFiltreProfil.DataSource = profils;
+            cbFiltreProfil.DisplayMember = "Nom";
+            cbFiltreProfil.ValueMember = "Idprofil";
+            cbFiltreProfil.SelectedIndex = 0;
         }
 
         /// <summary>
@@ -316,5 +363,17 @@ namespace Habilitations.view
                 RemplirListeProfils();
             }
         }
+
+        private void label8_Click(object sender, EventArgs e)
+        {
+
+        }
+        private void FrmHabilitations_Load(object sender, EventArgs e)
+        {
+            RemplirComboBoxFiltreProfil();
+            RemplirListeDeveloppeurs();
+            cbFiltreProfil.SelectedIndexChanged += ComboBoxFiltreProfil_SelectedIndexChanged;
+        }
     }
 }
+
