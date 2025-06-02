@@ -56,7 +56,30 @@ namespace Habilitations.dal.Tests
             List<Developpeur> lesDeveloppeurs = developpeurAccess.GetLesDeveloppeurs();
             Assert.AreNotEqual(0, lesDeveloppeurs.Count, "devrait réussir : au moins 1 développeur dans la BDD");
         }
+        
+        [TestMethod()]
+        public void GetLesDeveloppeursAvecFiltreTest()
+        {
+            List<Developpeur> tousLesDevs = developpeurAccess.GetLesDeveloppeurs();
+            Assert.IsTrue(tousLesDevs.Count > 0, "Il faut au moins un développeur.");
 
+            int idProfil = tousLesDevs[0].Profil.Idprofil;
+
+            List<Developpeur> devsAvecFiltre = developpeurAccess.GetLesDeveloppeurs(idProfil);
+            List<Developpeur> devsFiltrésManuellement = tousLesDevs.FindAll(dev => dev.Profil.Idprofil == idProfil);
+
+            Assert.AreEqual(devsFiltrésManuellement.Count, devsAvecFiltre.Count,
+                "Le nombre de développeurs retournés pour un profil donné doit être correct.");
+        }
+
+        [TestMethod()]
+        public void GetLesDeveloppeursSansFiltreTest()
+        {
+            List<Developpeur> lesDeveloppeurs = developpeurAccess.GetLesDeveloppeurs();
+            Assert.IsNotNull(lesDeveloppeurs, "La liste ne doit pas être vide.");
+            Assert.IsTrue(lesDeveloppeurs.Count > 0, "Il doit y avoir au moins un développeur.");
+        }
+        
         [TestMethod()]
         public void DelDepveloppeurTest()
         {
